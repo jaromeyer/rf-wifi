@@ -1,12 +1,15 @@
 import time
 from machine import Pin, SPI
 
+# init pins
 clk = Pin(0, Pin.OUT)
 data = Pin(1, Pin.OUT)
 nss = Pin(2, Pin.OUT)
 
+# wait for RF to boot
 time.sleep_ms(3000)
 
+# enter SPI mode
 clk.on()
 data.on()
 nss.on()
@@ -17,12 +20,13 @@ nss.off()
 time.sleep_ms(300)
 nss.on()
 
+# init SPI
 spi = SPI(-1, baudrate=80000, polarity=0, phase=0,
-          sck=clk, mosi=data, miso=Pin(14))
+          sck=clk, mosi=data, miso=Pin(-1))
 
 
 def hexPrint(array):
-    print ''.join('{:02x}'.format(x) for x in array)
+    print(''.join('{:02x}'.format(x) for x in array))
 
 
 def sendCommand(command):
@@ -61,16 +65,19 @@ def setOsdMode(mode):
         command = bytearray(b'\x4f\x3d\x01\x00\x00')
         command[4] = mode
         command[3] = (sum(command) & 0xFF)
-        print(command)
+        hexPrint(command)
         sendCommand(command)
     else:
         print("invalid input")
 
 
 def setOsdText(text):
-    command = bytearray(b'\x54\x3d\x00\x00')
-    command += bytearray(text)
-    command[2] = len(text)
-    command[3] = (sum(command) & 0xFF)
-    print(command)
-    sendCommand(bytearray(b'\x54\x3d\x05\x8a\x48\x65\x6c\x6c\x6f'))
+    if len(text) <= 25:
+        command = bytearray(b'\x54\x3d\x00\x00')
+        command += bytearray(text)
+        command[2] = len(text)
+        command[3] = (sum(command) & 0xFF)
+        hexPrint(command)
+        sendCommand(command)
+    else:
+        print("invalid input")
