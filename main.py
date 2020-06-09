@@ -1,29 +1,6 @@
 import time
 from machine import Pin, SPI
 
-# init pins
-clk = Pin(0, Pin.OUT)
-data = Pin(1, Pin.OUT)
-nss = Pin(2, Pin.OUT)
-
-# wait for RF to boot
-time.sleep_ms(3000)
-
-# enter SPI mode
-clk.on()
-data.on()
-nss.on()
-time.sleep_ms(300)
-clk.off()
-data.off()
-nss.off()
-time.sleep_ms(300)
-nss.on()
-
-# init SPI
-spi = SPI(-1, baudrate=80000, polarity=0, phase=0,
-          sck=clk, mosi=data, miso=Pin(-1))
-
 
 def hexPrint(array):
     print(''.join('{:02x}'.format(x) for x in array))
@@ -81,3 +58,30 @@ def setOsdText(text):
         sendCommand(command)
     else:
         print("invalid input")
+
+
+# init pins
+clk = Pin(0, Pin.OUT)
+data = Pin(1, Pin.OUT)
+nss = Pin(2, Pin.OUT)
+
+# wait for RF to boot
+time.sleep_ms(2000)
+
+# enter SPI mode
+clk.on()
+data.on()
+nss.on()
+time.sleep_ms(300)
+clk.off()
+data.off()
+nss.off()
+time.sleep_ms(300)
+nss.on()
+
+# init SPI
+spi = SPI(-1, baudrate=80000, polarity=0, phase=0,
+          sck=clk, mosi=data, miso=Pin(14))
+
+# beep when ready
+beep()
